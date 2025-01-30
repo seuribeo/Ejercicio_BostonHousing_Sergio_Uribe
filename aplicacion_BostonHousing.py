@@ -1,98 +1,100 @@
 import streamlit as st
 import pickle
 import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.datasets import load_boston
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import fetch_openml
-import pandas as pd
 
-# Cargar el dataset de Boston desde OpenML
-def load_boston_data():
-    """Cargar el conjunto de datos de Boston Housing desde OpenML."""
-    boston = fetch_openml(name='boston', version=1)
-    return boston
+# Función para entrenar y guardar el modelo
+def train_and_save_model():
+    """Entrena un modelo RandomForest y lo guarda en un archivo."""
+    # Cargar el conjunto de datos de Boston
+    boston = load_boston()
+    X = boston.data
+    y = boston.target
 
-# Función para cargar el modelo entrenado
+    # Preprocesar los datos (escalar)
+    scaler = StandardScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Entrenar el modelo RandomForest
+    model = RandomForestRegressor()
+    model.fit(X_scaled, y)
+
+    # Guardar el modelo entrenado
+    with open('model_trained_regressor.pkl', 'wb') as f:
+        pickle.dump(model, f)
+
+    print("Modelo entrenado y guardado con éxito.")
+
+# Función para cargar el modelo preentrenado
 def load_model():
-    """Cargar el modelo preentrenado."""
+    """Cargar el modelo y sus pesos desde el archivo model_trained_regressor.pkl."""
     with open('model_trained_regressor.pkl', 'rb') as f:
         model = pickle.load(f)
     return model
 
-# Preprocesamiento de las entradas de texto
-def preprocess_input(input_data):
-    """Transforma los datos de entrada en un formato adecuado para la predicción."""
-    # Convertir las entradas a un arreglo numpy
-    input_array = np.array([input_data])
-    # Normalizar las entradas utilizando el mismo scaler usado durante el entrenamiento
-    scaler = StandardScaler()
-    input_array = scaler.fit_transform(input_array)
-    return input_array
+# Función para hacer predicciones con el modelo
+def predict_price(model, features):
+    """Realiza la predicción del precio de la casa."""
+    price = model.predict([features])
+    return price[0]
 
-# Página principal de la aplicación
+# Función principal de la aplicación Streamlit
 def main():
-    # Estilos personalizados
-    st.markdown(
-        """
-        <style>
-        .main-title {
-            font-size: 32px;
-            font-weight: bold;
-            color: #2E86C1;
-            text-align: center;
-        }
-        .description {
-            font-size: 18px;
-            color: #555555;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .footer {
-            font-size: 14px;
-            color: #888888;
-            text-align: center;
-            margin-top: 50px;
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    # Entrenamiento del modelo si no existe el archivo
+    try:
+        load_model()
+    except FileNotFoundError:
+        st.warning("Modelo no encontrado. Entrenando y guardando el modelo...")
+        train_and_save_model()
+        st.success("Modelo entrenado y guardado exitosamente.")
+    
+    # Título de la aplicación
+    st.title("Predicción del Precio de una Casa - Boston Housing")
 
-    # Título y descripción
-    st.markdown('<div class="main-title">Predicción del Precio de una Casa (Boston Housing)</div>', unsafe_allow_html=True)
-    st.markdown('<div class="description">Introduce las características de una casa y te diremos su precio aproximado.</div>', unsafe_allow_html=True)
+    # Descripción
+    st.markdown("""
+    Ingresa las características de una casa y obtén la predicción del precio de la casa según el modelo entrenado.
+    """)
 
-    # Cargar el dataset de Boston Housing
-    boston = load_boston_data()
-    feature_names = boston.feature_names
-
-    # Solicitar las entradas de texto del usuario
+    # Características de la casa
     st.subheader("Introduce las características de la casa:")
-    inputs = {}
-    for feature in feature_names:
-        inputs[feature] = st.number_input(f'{feature}', min_value=0.0)
+    
+    # Entradas de texto para las 13 características
+    CRIM = st.number_input("CRIM - Tasa de criminalidad", value=0.1)
+    ZN = st.number_input("ZN - Proporción de terrenos residenciales zonificados", value=0.0)
+    INDUS = st.number_input("INDUS - Proporción de acres de negocios no minoristas", value=10.0)
+    CHAS = st.number_input("CHAS - Proporción de zonas cercanas al río Charles (0 o 1)", value=0)
+    NOX = st.number_input("NOX - Concentración de óxidos de nitrógeno", value=0.5)
+    RM = st.number_input("RM - Número promedio de habitaciones por casa", value=6.0)
+    AGE = st.number_input("AGE - Proporción de casas construidas antes de 1940", value=50.0)
+    DIS = st.number_input("DIS - Distancia ponderada a los centros de empleo", value=5.0)
+    RAD = st.number_input("RAD - Índice de accesibilidad a carreteras radiales", value=4)
+    TAX = st.number_input("TAX - Tasa de impuestos sobre la propiedad", value=300)
+    PTRATIO = st.number_input("PTRATIO - Relación alumno/profesor", value=18)
+    B = st.number_input("B - Proporción de residentes de origen africano", value=400)
+    LSTAT = st.number_input("LSTAT - Porcentaje de población de estatus bajo", value=12.0)
 
-    # Lista con las características de la casa
-    house_features = [inputs[feature] for feature in feature_names]
+    # Crear una lista con las características ingresadas
+    features = [CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT]
+    
+    # Cargar el modelo preentrenado
+    model = load_model()
 
-    # Cuando el usuario hace clic en el botón de predicción
-    if st.button('Predecir Precio'):
-        with st.spinner("Calculando el precio..."):
-            # Cargar el modelo entrenado
-            model = load_model()
+    # Botón para realizar la predicción
+    if st.button("Predecir precio de la casa"):
+        # Preprocesar los datos (escalar)
+        scaler = StandardScaler()
+        features_scaled = scaler.fit_transform([features])
 
-            # Preprocesar las entradas del usuario
-            input_data = preprocess_input(house_features)
+        # Realizar la predicción
+        predicted_price = predict_price(model, features_scaled[0])
 
-            # Realizar la predicción
-            prediction = model.predict(input_data)
-
-            # Mostrar el resultado de la predicción
-            st.success(f"El precio estimado de la casa es: ${prediction[0]:,.2f}")
-
-    # Footer
-    st.markdown('<div class="footer">© 2025 - Predicción de precio de casas con Streamlit</div>', unsafe_allow_html=True)
+        # Mostrar el resultado
+        st.write(f"El precio estimado de la casa es: ${predicted_price:,.2f}")
 
 if __name__ == "__main__":
     main()
-
 
