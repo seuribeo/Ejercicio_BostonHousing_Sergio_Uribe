@@ -2,15 +2,15 @@ import streamlit as st
 import pickle
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
-from sklearn.datasets import load_boston
+from sklearn.datasets import fetch_openml
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 # Función para entrenar y guardar el modelo
 def train_and_save_model():
     """Entrena un modelo RandomForest y lo guarda en un archivo."""
-    # Cargar el conjunto de datos de Boston
-    boston = load_boston()
+    # Cargar el conjunto de datos de Boston desde OpenML
+    boston = fetch_openml(name="boston", version=1)
     X = boston.data
     y = boston.target
 
