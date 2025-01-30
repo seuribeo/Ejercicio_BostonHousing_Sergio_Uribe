@@ -2,8 +2,14 @@ import streamlit as st
 import pickle
 import numpy as np
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import load_boston
+from sklearn.datasets import fetch_openml
 import pandas as pd
+
+# Cargar el dataset de Boston desde OpenML
+def load_boston_data():
+    """Cargar el conjunto de datos de Boston Housing desde OpenML."""
+    boston = fetch_openml(name='boston', version=1)
+    return boston
 
 # Función para cargar el modelo entrenado
 def load_model():
@@ -55,24 +61,18 @@ def main():
     st.markdown('<div class="main-title">Predicción del Precio de una Casa (Boston Housing)</div>', unsafe_allow_html=True)
     st.markdown('<div class="description">Introduce las características de una casa y te diremos su precio aproximado.</div>', unsafe_allow_html=True)
 
+    # Cargar el dataset de Boston Housing
+    boston = load_boston_data()
+    feature_names = boston.feature_names
+
     # Solicitar las entradas de texto del usuario
     st.subheader("Introduce las características de la casa:")
-    CRIM = st.number_input('Tasa de criminalidad per cápita', min_value=0.0)
-    ZN = st.number_input('Proporción de terrenos residenciales', min_value=0.0)
-    INDUS = st.number_input('Proporción de áreas comerciales no minoristas', min_value=0.0)
-    CHAS = st.number_input('¿Está cerca del río Charles? (1 = sí, 0 = no)', min_value=0, max_value=1)
-    NOX = st.number_input('Concentración de óxidos de nitrógeno (partes por 10 millones)', min_value=0.0)
-    RM = st.number_input('Número promedio de habitaciones por vivienda', min_value=0.0)
-    AGE = st.number_input('Proporción de viviendas construidas antes de 1940', min_value=0.0)
-    DIS = st.number_input('Distancia ponderada a los 5 centros de empleo', min_value=0.0)
-    RAD = st.number_input('Índice de accesibilidad a las autopistas', min_value=0.0)
-    TAX = st.number_input('Tasa de impuestos sobre la propiedad', min_value=0.0)
-    PTRATIO = st.number_input('Relación alumno-profesor', min_value=0.0)
-    B = st.number_input('Proporción de población de origen afroamericano', min_value=0.0)
-    LSTAT = st.number_input('Porcentaje de población con bajo estatus socioeconómico', min_value=0.0)
+    inputs = {}
+    for feature in feature_names:
+        inputs[feature] = st.number_input(f'{feature}', min_value=0.0)
 
     # Lista con las características de la casa
-    house_features = [CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT]
+    house_features = [inputs[feature] for feature in feature_names]
 
     # Cuando el usuario hace clic en el botón de predicción
     if st.button('Predecir Precio'):
@@ -94,4 +94,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
