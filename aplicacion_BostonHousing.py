@@ -1,69 +1,89 @@
 import streamlit as st
 import pickle
+import gzip
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
-# Función para cargar el modelo preentrenado
+# Cargar el modelo
+@st.cache_data
 def load_model():
-    """Carga el modelo preentrenado con el mejor ajuste encontrado."""
-    with open('model_trained_regressor.pkl', 'rb') as f:
-        model = pickle.load(f)  # Puede ser un Pipeline con StandardScaler + Kernel Ridge
+    filename = 'model_trained_regressor.pkl.gz'
+    with gzip.open(filename, 'rb') as f:
+        model = pickle.load(f)
     return model
 
-# Cargar el modelo una sola vez al inicio
-model = load_model()
+# Función para realizar predicciones
+def predict_price(features):
+    model = load_model()
+    features = np.array(features).reshape(1, -1)
+    prediction = model.predict(features)
+    return prediction[0]
 
-# Hiperparámetros óptimos encontrados en la búsqueda del profesor
-best_model_name = "Kernel Ridge"
-best_scaler = "StandardScaler"
-best_hyperparams = {
-    "alpha": 0.1,
-    "kernel": "rbf"
-}
+# Estilos personalizados
+st.markdown(
+    """
+    <style>
+    .main-title {
+        font-size: 32px;
+        font-weight: bold;
+        color: #2E86C1;
+        text-align: center;
+    }
+    .description {
+        font-size: 18px;
+        color: #555555;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .footer {
+        font-size: 14px;
+        color: #888888;
+        text-align: center;
+        margin-top: 50px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-# Función principal de la aplicación Streamlit
-def main():
-    # Título de la aplicación
-    st.title("Predicción del Precio de una Casa - Boston Housing")
+# Título y descripción
+st.markdown('<div class="main-title">Predicción de Precios de Vivienda en Boston</div>', unsafe_allow_html=True)
+st.markdown('<div class="description">Ingrese los valores de las características para predecir el precio de una vivienda.</div>', unsafe_allow_html=True)
 
-    # Descripción del modelo
-    st.markdown(f"""
-    ### Modelo seleccionado:
-    - **Regresor:** {best_model_name}
-    - **Escalador:** {best_scaler}
-    - **Mejores hiperparámetros:**  
-        - α (alpha): {best_hyperparams['alpha']}  
-        - Kernel: {best_hyperparams['kernel']}
-    """)
+# Entrada de características
+st.sidebar.header("Parámetros de Entrada")
+crim = st.sidebar.number_input("Tasa de criminalidad", min_value=0.0, value=0.1)
+zn = st.sidebar.number_input("Porcentaje de terrenos residenciales", min_value=0.0, value=10.0)
+indus = st.sidebar.number_input("Porcentaje de acres comerciales", min_value=0.0, value=5.0)
+nox = st.sidebar.number_input("Concentración de óxidos de nitrógeno", min_value=0.0, max_value=1.0, value=0.5)
+rm = st.sidebar.number_input("Número promedio de habitaciones", min_value=1.0, value=6.0)
+age = st.sidebar.number_input("Edad promedio de las viviendas", min_value=0.0, max_value=100.0, value=50.0)
+dis = st.sidebar.number_input("Distancia a centros de empleo", min_value=0.0, value=4.0)
+rad = st.sidebar.number_input("Índice de accesibilidad a carreteras", min_value=1, max_value=24, value=4)
+tax = st.sidebar.number_input("Tasa de impuesto a la propiedad", min_value=0.0, value=300.0)
+ptratio = st.sidebar.number_input("Ratio de alumnos por maestro", min_value=0.0, value=18.0)
+lstat = st.sidebar.number_input("Porcentaje de población de bajos ingresos", min_value=0.0, value=12.0)
 
-    # Sección de entrada de características
-    st.subheader("Introduce las características de la casa:")
-    
-    # Entradas para las 13 características
-    CRIM = st.number_input("CRIM - Tasa de criminalidad", value=0.1)
-    ZN = st.number_input("ZN - Proporción de terrenos residenciales zonificados", value=0.0)
-    INDUS = st.number_input("INDUS - Proporción de acres de negocios no minoristas", value=10.0)
-    CHAS = st.number_input("CHAS - Proximidad al río Charles (0 o 1)", value=0)
-    NOX = st.number_input("NOX - Concentración de óxidos de nitrógeno", value=0.5)
-    RM = st.number_input("RM - Número promedio de habitaciones", value=6.0)
-    AGE = st.number_input("AGE - Proporción de casas antiguas", value=50.0)
-    DIS = st.number_input("DIS - Distancia a centros de empleo", value=5.0)
-    RAD = st.number_input("RAD - Índice de accesibilidad a carreteras", value=4)
-    TAX = st.number_input("TAX - Tasa de impuestos", value=300)
-    PTRATIO = st.number_input("PTRATIO - Relación alumno/profesor", value=18)
-    B = st.number_input("B - Proporción de residentes afroamericanos", value=400)
-    LSTAT = st.number_input("LSTAT - Porcentaje de población de bajo estatus", value=12.0)
+# Botón de predicción
+if st.sidebar.button("Predecir Precio"):
+    features = [crim, zn, indus, nox, rm, age, dis, rad, tax, ptratio, lstat]
+    prediction = predict_price(features)
+    st.success(f"El precio estimado de la vivienda es: ${prediction * 1000:,.2f}")
 
-    # Crear un array con las características ingresadas
-    features = np.array([[CRIM, ZN, INDUS, CHAS, NOX, RM, AGE, DIS, RAD, TAX, PTRATIO, B, LSTAT]])
+# Información sobre los hiperparámetros evaluados
+st.sidebar.markdown("""
+### Hiperparámetros Evaluados
+Se probaron diferentes modelos con diversas configuraciones de hiperparámetros. Los principales modelos evaluados fueron:
 
-    # Botón para predecir el precio
-    if st.button("Predecir precio de la casa"):
-        # Realizar la predicción usando el modelo cargado
-        predicted_price = model.predict(features)[0]
+- **ElasticNet con StandardScaler** (Mejor MAE: 3.4372)
+- **Kernel Ridge con StandardScaler** (Mejor MAE: 2.6156, modelo seleccionado)
+- **ElasticNet con MinMaxScaler** (Mejor MAE: 3.4694)
+- **Kernel Ridge con MinMaxScaler** (Mejor MAE: 2.8787)
 
-        # Mostrar el resultado
-        st.success(f"💰 **El precio estimado de la casa es: ${predicted_price:,.2f}**")
+El modelo seleccionado fue **Kernel Ridge con StandardScaler**, ya que presentó el menor MAE.
+""")
 
-if __name__ == "__main__":
-    main()
+# Footer
+st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
+
 
