@@ -15,7 +15,13 @@ def load_model():
 # Función para realizar predicciones
 def predict_price(features):
     model = load_model()
-    features = np.array(features).reshape(1, -1)
+    
+    # Si el modelo incluye un scaler, asegúrate de normalizar los datos de entrada
+    if hasattr(model, 'transform'):  # Verifica si el modelo tiene un método transform (como un pipeline)
+        features = model.transform(np.array(features).reshape(1, -1))
+    else:  # Si no tiene transform, simplemente usa el modelo tal como está
+        features = np.array(features).reshape(1, -1)
+    
     prediction = model.predict(features)
     return prediction[0]
 
@@ -85,4 +91,5 @@ El modelo seleccionado fue **Kernel Ridge con StandardScaler**, ya que presentó
 
 # Footer
 st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
+
 
