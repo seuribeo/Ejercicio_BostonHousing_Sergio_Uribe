@@ -29,7 +29,7 @@ def main():
         .main-title {
             font-size: 32px;
             font-weight: bold;
-            color: #000000;
+            color: #2E86C1;
             text-align: center;
         }
         .description {
@@ -54,12 +54,12 @@ def main():
     st.sidebar.markdown(""" 
     Se probaron diferentes modelos con diversas configuraciones de hiperparámetros. Los principales modelos evaluados fueron:
 
-    - *ElasticNet con StandardScaler* (Mejor MAE: 3.4372)
-    - *Kernel Ridge con StandardScaler* (Mejor MAE: 2.6156, modelo seleccionado)
-    - *ElasticNet con MinMaxScaler* (Mejor MAE: 3.4694)
-    - *Kernel Ridge con MinMaxScaler* (Mejor MAE: 2.8787)
+    - **ElasticNet con StandardScaler** (Mejor MAE: 3.4372)
+    - **Kernel Ridge con StandardScaler** (Mejor MAE: 2.6156, modelo seleccionado)
+    - **ElasticNet con MinMaxScaler** (Mejor MAE: 3.4694)
+    - **Kernel Ridge con MinMaxScaler** (Mejor MAE: 2.8787)
 
-    El modelo seleccionado fue *Kernel Ridge con StandardScaler*, ya que presentó el menor MAE.
+    El modelo seleccionado fue **Kernel Ridge con StandardScaler**, ya que presentó el menor MAE.
     """)
 
     # Título de la aplicación
@@ -68,9 +68,9 @@ def main():
     # Descripción del modelo
     st.markdown(f"""
     ### Modelo seleccionado:
-    - *Regresor:* {best_model_name}
-    - *Escalador:* {best_scaler}
-    - *Mejores hiperparámetros:*  
+    - **Regresor:** {best_model_name}
+    - **Escalador:** {best_scaler}
+    - **Mejores hiperparámetros:**  
         - α (alpha): {best_hyperparams['alpha']}  
         - Kernel: {best_hyperparams['kernel']}
     """)
@@ -102,11 +102,11 @@ def main():
         predicted_price = model.predict(features)[0]
 
         # Mostrar el resultado
-        st.success(f"💰 *El precio estimado de la casa es: ${predicted_price:,.2f}*")
+        st.success(f"💰 **El precio estimado de la casa es: ${predicted_price:,.2f}**")
 
     # Footer
     st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
 
-if _name_ == "_main_":
-    main()
+if __name__ == "__main__":
+    main()
 
