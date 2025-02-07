@@ -29,7 +29,7 @@ def main():
         .main-title {
             font-size: 32px;
             font-weight: bold;
-            color: #000000;
+            color: #2E86C1;
             text-align: center;
         }
         .description {
@@ -109,5 +109,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
