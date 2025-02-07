@@ -22,19 +22,47 @@ best_hyperparams = {
 
 # Función principal de la aplicación Streamlit
 def main():
-    # Título de la aplicación
-    st.title("Predicción del Precio de una Casa - Boston Housing")
+    # Estilos personalizados
+    st.markdown(
+        """
+        <style>
+        .main-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3C8033;
+            text-align: center;
+        }
+        .description {
+            font-size: 18px;
+            color: #555555;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #888888;
+            text-align: center;
+            margin-top: 50px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # Descripción del modelo
-    st.markdown(f"""
-    ### Modelo seleccionado:
-    - **Regresor:** {best_model_name}
-    - **Escalador:** {best_scaler}
-    - **Mejores hiperparámetros:**  
-        - α (alpha): {best_hyperparams['alpha']}  
-        - Kernel: {best_hyperparams['kernel']}
-    """)
+    # Título y descripción
+    st.markdown('<div class="main-title">Predicción del Precio de una Casa - Boston Housing</div>', unsafe_allow_html=True)
+    st.markdown('<div class="description">Utiliza el modelo preentrenado para predecir el precio de una casa en Boston.</div>', unsafe_allow_html=True)
 
+    # Barra lateral con información del modelo
+    st.sidebar.title("Modelo utilizado")
+    st.sidebar.write(f"**Regresor:** {best_model_name}")
+    st.sidebar.write(f"**Escalador:** {best_scaler}")
+    st.sidebar.write("### Mejores hiperparámetros:")
+    st.sidebar.write(f"- α (alpha): {best_hyperparams['alpha']}")
+    st.sidebar.write(f"- Kernel: {best_hyperparams['kernel']}")
+    st.sidebar.subheader("Características del modelo:")
+    st.sidebar.write("El modelo ha sido entrenado con un conjunto de características que incluyen indicadores económicos y sociales.")
+    
     # Sección de entrada de características
     st.subheader("Introduce las características de la casa:")
     
@@ -63,6 +91,9 @@ def main():
 
         # Mostrar el resultado
         st.success(f"💰 **El precio estimado de la casa es: ${predicted_price:,.2f}**")
+
+    # Footer
+    st.markdown('<div class="footer">© 2025 - Predicción de Precios de Casas con Streamlit</div>', unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
