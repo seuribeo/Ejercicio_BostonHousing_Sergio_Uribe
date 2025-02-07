@@ -96,7 +96,6 @@ def main():
     # Botón para predecir el precio
     if st.button("Predecir precio de la casa"):
         # Realizar la predicción usando el modelo cargado
-        model = load_model()
         predicted_price = model.predict(features)[0]
 
         # Mostrar el resultado
