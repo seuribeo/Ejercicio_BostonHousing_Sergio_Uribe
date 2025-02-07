@@ -22,15 +22,55 @@ best_hyperparams = {
 
 # Función principal de la aplicación Streamlit
 def main():
+    # Estilos personalizados
+    st.markdown(
+        """
+        <style>
+        .main-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+        }
+        .description {
+            font-size: 18px;
+            color: #555555;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .footer {
+            font-size: 14px;
+            color: #888888;
+            text-align: center;
+            margin-top: 50px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Barra lateral con los hiperparámetros evaluados
+    st.sidebar.header("Hiperparámetros Evaluados")
+    st.sidebar.markdown(""" 
+    Se probaron diferentes modelos con diversas configuraciones de hiperparámetros. Los principales modelos evaluados fueron:
+
+    - *ElasticNet con StandardScaler* (Mejor MAE: 3.4372)
+    - *Kernel Ridge con StandardScaler* (Mejor MAE: 2.6156, modelo seleccionado)
+    - *ElasticNet con MinMaxScaler* (Mejor MAE: 3.4694)
+    - *Kernel Ridge con MinMaxScaler* (Mejor MAE: 2.8787)
+
+    El modelo seleccionado fue *Kernel Ridge con StandardScaler*, ya que presentó el menor MAE.
+    """)
+
     # Título de la aplicación
-    st.title("Predicción del Precio de una Casa - Boston Housing")
+    st.markdown('<div class="main-title">Predicción del Precio de una Casa - Boston Housing</div>', unsafe_allow_html=True)
 
     # Descripción del modelo
     st.markdown(f"""
     ### Modelo seleccionado:
-    - **Regresor:** {best_model_name}
-    - **Escalador:** {best_scaler}
-    - **Mejores hiperparámetros:**  
+    - *Regresor:* {best_model_name}
+    - *Escalador:* {best_scaler}
+    - *Mejores hiperparámetros:*  
         - α (alpha): {best_hyperparams['alpha']}  
         - Kernel: {best_hyperparams['kernel']}
     """)
@@ -62,8 +102,10 @@ def main():
         predicted_price = model.predict(features)[0]
 
         # Mostrar el resultado
-        st.success(f"💰 **El precio estimado de la casa es: ${predicted_price:,.2f}**")
+        st.success(f"💰 *El precio estimado de la casa es: ${predicted_price:,.2f}*")
 
-if __name__ == "__main__":
-    main()
+    # Footer
+    st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
 
+if _name_ == "_main_":
+    main()
