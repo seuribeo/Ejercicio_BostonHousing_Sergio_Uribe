@@ -9,9 +9,6 @@ def load_model():
         model = pickle.load(f)  # Puede ser un Pipeline con StandardScaler + Kernel Ridge
     return model
 
-# Cargar el modelo una sola vez al inicio
-model = load_model()
-
 # Hiperparámetros óptimos encontrados en la búsqueda del profesor
 best_model_name = "Kernel Ridge"
 best_scaler = "StandardScaler"
