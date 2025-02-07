@@ -1,23 +1,18 @@
 import streamlit as st
 import pickle
 import numpy as np
-import gzip
 
-# Función para cargar el modelo preentrenado desde un archivo comprimido .pkl.gz
+# Función para cargar el modelo preentrenado
 def load_model():
-    """Carga el modelo preentrenado desde un archivo comprimido .pkl.gz."""
-    model_path = 'model_trained_regressor.pkl.gz'
-    try:
-        with gzip.open(model_path, 'rb') as f:
-            model = pickle.load(f)  # Carga el modelo descomprimido
-        return model
-    except Exception as e:
-        raise RuntimeError(f"Error al cargar el modelo: {e}")
+    """Carga el modelo preentrenado con el mejor ajuste encontrado."""
+    with open('model_trained_regressor.pkl', 'rb') as f:
+        model = pickle.load(f)  # Puede ser un Pipeline con StandardScaler + Kernel Ridge
+    return model
 
 # Cargar el modelo una sola vez al inicio
 model = load_model()
 
-# Hiperparámetros óptimos encontrados
+# Hiperparámetros óptimos encontrados en la búsqueda del profesor
 best_model_name = "Kernel Ridge"
 best_scaler = "StandardScaler"
 best_hyperparams = {
@@ -25,6 +20,7 @@ best_hyperparams = {
     "kernel": "rbf"
 }
 
+# Función principal de la aplicación Streamlit
 def main():
     # Estilos personalizados
     st.markdown(
@@ -33,7 +29,7 @@ def main():
         .main-title {
             font-size: 32px;
             font-weight: bold;
-            color: #1E90FF;
+            color: #000000;
             text-align: center;
         }
         .description {
@@ -53,17 +49,17 @@ def main():
         unsafe_allow_html=True
     )
 
-    # Barra lateral con información sobre los modelos evaluados
-    st.sidebar.header("Hiperparámetros")
+    # Barra lateral con los hiperparámetros evaluados
+    st.sidebar.header("Hiperparámetros Evaluados")
     st.sidebar.markdown(""" 
-    Se probaron diferentes modelos con diversas configuraciones de hiperparámetros. Los modelos evaluados fueron:
+    Se probaron diferentes modelos con diversas configuraciones de hiperparámetros. Los principales modelos evaluados fueron:
 
-    - ElasticNet con StandardScaler (Mejor MAE: 3.4372)
-    - Kernel Ridge con StandardScaler (Mejor MAE: 2.6156, modelo seleccionado)
-    - ElasticNet con MinMaxScaler (Mejor MAE: 3.4694)
-    - Kernel Ridge con MinMaxScaler (Mejor MAE: 2.8787)
+    - *ElasticNet con StandardScaler* (Mejor MAE: 3.4372)
+    - *Kernel Ridge con StandardScaler* (Mejor MAE: 2.6156, modelo seleccionado)
+    - *ElasticNet con MinMaxScaler* (Mejor MAE: 3.4694)
+    - *Kernel Ridge con MinMaxScaler* (Mejor MAE: 2.8787)
 
-    El modelo seleccionado fue Kernel Ridge con StandardScaler, ya que presentó el menor MAE.
+    El modelo seleccionado fue *Kernel Ridge con StandardScaler*, ya que presentó el menor MAE.
     """)
 
     # Título de la aplicación
@@ -72,9 +68,9 @@ def main():
     # Descripción del modelo
     st.markdown(f"""
     ### Modelo seleccionado:
-    - Regresor: {best_model_name}
-    - Escalador: {best_scaler}
-    - Mejores hiperparámetros:  
+    - *Regresor:* {best_model_name}
+    - *Escalador:* {best_scaler}
+    - *Mejores hiperparámetros:*  
         - α (alpha): {best_hyperparams['alpha']}  
         - Kernel: {best_hyperparams['kernel']}
     """)
@@ -106,10 +102,11 @@ def main():
         predicted_price = model.predict(features)[0]
 
         # Mostrar el resultado
-        st.success(f"💰 El precio estimado de la casa es: ${predicted_price:,.2f}")
+        st.success(f"💰 *El precio estimado de la casa es: ${predicted_price:,.2f}*")
 
     # Footer
     st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
 
-if _name_ == "_main_":
-    main()
+# Corrección del error en la ejecución principal
+if __name__ == "__main__":
+    main()
