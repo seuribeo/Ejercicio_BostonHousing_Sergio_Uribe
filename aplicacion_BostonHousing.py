@@ -4,10 +4,12 @@ import numpy as np
 
 # Función para cargar el modelo preentrenado
 def load_model():
-    """Carga el modelo preentrenado con el mejor ajuste encontrado."""
-    with open('model_trained_regressor.pkl ', 'rb') as f:
-        model = pickle.load(f)  # Puede ser un Pipeline con StandardScaler + Kernel Ridge
+    """Cargar el modelo preentrenado con el mejor ajuste encontrado."""
+    filename = 'model_trained_regressor.pkl.gz'
+    with gzip.open(filename, 'rb') as f:
+        model = pickle.load(f)
     return model
+
 
 # Cargar el modelo una sola vez al inicio
 model = load_model()
