@@ -9,6 +9,19 @@ def load_model():
         model = pickle.load(f)  # Puede ser un Pipeline con StandardScaler + Kernel Ridge
     return model
 
+model = load_model()
+
+# Ver información sobre el modelo cargado
+print("✅ Modelo cargado correctamente:", type(model))
+print("📌 Atributos del modelo:", dir(model))
+
+# Si es un Pipeline, verificar los pasos
+if hasattr(model, "steps"):
+    print("🔍 El modelo es un Pipeline con los siguientes pasos:")
+    for step in model.steps:
+        print(f"- {step[0]}: {type(step[1])}")
+
+
 # Cargar el modelo una sola vez al inicio
 model = load_model()
 
