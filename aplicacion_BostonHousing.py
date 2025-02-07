@@ -107,5 +107,5 @@ def main():
     # Footer
     st.markdown('<div class="footer">© 2025 - Predicción de precios con Streamlit</div>', unsafe_allow_html=True)
 
-if _name_ == "_main_":
-    main()
+if __name__ == "__main__":
+    main()
